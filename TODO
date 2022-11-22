@@ -1,0 +1,10 @@
+General stuff:
+- pin down method and format for keeping track of files and tags
+- implement a set of functions for operating on this:
+    - list tags
+    - list files under tag
+    - list tags for a specific file
+    - add a tag to a file (or put a file under a tag rather)
+    - remove tag from file
+    - find the tagging file from PWD
+- write a cli frontend for harnessing these functions

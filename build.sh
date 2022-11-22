@@ -1,6 +1,6 @@
 #!/bin/sh
 
-flags="-g"
+flags="-g -I../include"
 
 mkdir -p bin
 
