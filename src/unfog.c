@@ -1,36 +1,55 @@
 #include <stdio.h>
-#include <dirent.h>
+#include <string.h>
 
-#include <md.h>
-#include <md.c>
+#include <json.h>
 #include <tinydir.h>
 
-char *FindFile(const char *pwd)
-{
-    const char f[] = ".unfog";
-    char *path;
-    tinydir_dir dir;
-
-    tinydir_open(&dir, pwd);
-
-    while (dir.has_next) {
-        tinydir_file file;
-        tinydir_readfile(&dir, &file);
-
-        printf("%s\n", file.name);
-
-        tinydir_next(&dir);
-    }
-
-    return path;
-}
+#include "path.c"
+#include "arena.c"
+#include "string.c"
+#include "node.c"
 
 int main(int argc, char **argv)
 {
-    MD_Arena *arena = MD_ArenaAlloc();
     char *pwd = getenv("PWD");
 
-    FindFile(pwd);
+    char *tag_file = FindFile(pwd);
+    if (tag_file) {
+        printf("%s\n", tag_file);
+    } else {
+        puts("No tag file found!");
+        return 1;
+    }
+
+    Arena *arena = ArenaAlloc();
+    Node *node;
+    {
+        char *src = 0;
+        size_t src_len = 0;
+        FILE *file = fopen(tag_file, "r");
+        if (!file) {
+            return 1;
+        }
+
+        fseek(file, 0, SEEK_END);
+        src_len = ftell(file);
+        rewind(file);
+        src = malloc(src_len+1);
+        fread(src, 1, src_len, file);
+        fclose(file);
+
+        struct json_value_s *result = json_parse(src, src_len);
+        free(src);
+        node = NodesFromJson(arena, result);
+        free(result);
+    }
+
+    for (Each(Node, tag, node)) {
+        printf("%.*s\n", StringVArg(tag->name));
+        for (Each(Node, path, tag->child)) {
+            printf("\t%.*s\n", StringVArg(path->name));
+        }
+    }
 
     return 0;
 }
