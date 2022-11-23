@@ -8,6 +8,7 @@
 #include "arena.c"
 #include "string.c"
 #include "node.c"
+#include "tags.c"
 
 int main(int argc, char **argv)
 {
@@ -49,6 +50,13 @@ int main(int argc, char **argv)
         for (Each(Node, path, tag->child)) {
             printf("\t%.*s\n", StringVArg(path->name));
         }
+    }
+
+    {
+        struct json_value_s *result = JsonFromNodes(arena, node);
+        String dump;
+        dump.str = json_write_pretty(result, 0, 0, &dump.length);
+        printf("%.*s\n", StringVArg(dump));
     }
 
     return 0;
