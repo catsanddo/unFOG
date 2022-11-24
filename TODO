@@ -4,7 +4,7 @@ X pin down method and format for keeping track of files and tags
     - list tags
     - list files under tag
     - list tags for a specific file
-    - add a tag to a file (or put a file under a tag rather)
+    X add a tag to a file (or put a file under a tag rather)
     - remove tag from file
     X find the tagging file from PWD
 - handle error cases in NodesFromJson

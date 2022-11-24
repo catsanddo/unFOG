@@ -45,12 +45,11 @@ int main(int argc, char **argv)
         free(result);
     }
 
-    for (Each(Node, tag, node)) {
-        printf("%.*s\n", StringVArg(tag->name));
-        for (Each(Node, path, tag->child)) {
-            printf("\t%.*s\n", StringVArg(path->name));
-        }
-    }
+    AddTag(arena, &node, StringLit("foobar"));
+    TagFile(arena, &node, StringLit("foobar"), StringLit("TODO"));
+    TagFile(arena, &node, StringLit("foobar"), StringLit("TODO"));
+    TagFile(arena, &node, StringLit("code"), StringLit("TODO"));
+    TagFile(arena, &node, StringLit("f"), StringLit("TODO"));
 
     {
         struct json_value_s *result = JsonFromNodes(arena, node);
