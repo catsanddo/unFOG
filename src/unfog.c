@@ -22,7 +22,9 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    Arena *arena = ArenaAlloc();
+    Arena *node_arena = ArenaAlloc();
+    Arena *json_arena = ArenaAlloc();
+    NodePool pool = { .arena = node_arena };
     Node *node;
     {
         char *src = 0;
@@ -41,18 +43,19 @@ int main(int argc, char **argv)
 
         struct json_value_s *result = json_parse(src, src_len);
         free(src);
-        node = NodesFromJson(arena, result);
+        node = NodesFromJson(&pool, result);
         free(result);
+        ArenaClear(json_arena);
     }
 
-    AddTag(arena, &node, StringLit("foobar"));
-    TagFile(arena, &node, StringLit("foobar"), StringLit("TODO"));
-    TagFile(arena, &node, StringLit("foobar"), StringLit("TODO"));
-    TagFile(arena, &node, StringLit("code"), StringLit("TODO"));
-    TagFile(arena, &node, StringLit("f"), StringLit("TODO"));
+    AddTag(&pool, &node, StringLit("foobar"));
+    TagFile(&pool, &node, StringLit("foobar"), StringLit("TODO"));
+    TagFile(&pool, &node, StringLit("foobar"), StringLit("TODO"));
+    TagFile(&pool, &node, StringLit("code"), StringLit("TODO"));
+    TagFile(&pool, &node, StringLit("f"), StringLit("TODO"));
 
     {
-        struct json_value_s *result = JsonFromNodes(arena, node);
+        struct json_value_s *result = JsonFromNodes(json_arena, node);
         String dump;
         dump.str = json_write_pretty(result, 0, 0, &dump.length);
         printf("%.*s\n", StringVArg(dump));

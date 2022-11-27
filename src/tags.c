@@ -1,11 +1,11 @@
-int AddTag(Arena *arena, Node **first, String tag)
+int AddTag(NodePool *pool, Node **first, String tag)
 {
     for (Each(Node, t, *first)) {
         if (strcmp(t->name.str, tag.str) == 0) {
             return 1;
         }
     }
-    Node *tag_node = ArenaPush(arena, sizeof(Node));
+    Node *tag_node = NodeNew(pool);
     tag_node->name = tag;
     tag_node->child = 0;
     SLLPush(*first, tag_node);
@@ -18,9 +18,10 @@ void RemoveTag(Node **first, String tag)
 }
 
 // TODO: check for duplicates
-void TagFile(Arena *arena, Node **first, String tag, String file)
+void TagFile(NodePool *pool, Node **first, String tag, String file)
 {
-    Node *file_node = ArenaPush(arena, sizeof(Node));
+    Node *file_node = NodeNew(pool);
+
     Node *iter = *first;
 
     file_node->name = file;
@@ -30,7 +31,7 @@ void TagFile(Arena *arena, Node **first, String tag, String file)
     }
 
     if (!iter) {
-        AddTag(arena, first, tag);
+        AddTag(pool, first, tag);
         iter = *first;
     }
 

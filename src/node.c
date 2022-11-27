@@ -2,6 +2,13 @@
 #define SLLPush(f,n) ((f)==0? \
         ((f)=(n), (n)->next = 0): \
         ((n)->next = (f), (f)=(n)))
+#define SLLPop(f,n) ((f)==0? \
+        ((n)=0): \
+        ((n)=(f),(f)=(f)->next))
+
+#define DLLPushBack(f,l,n) ((f)==0? \
+        ((f)=(l)=(n), (n)->next = 0): \
+        ((n)->next = (f), (f)=(n)))
 
 typedef struct Node Node;
 struct Node {
@@ -11,25 +18,54 @@ struct Node {
     Node *child;
 };
 
-Node *NodesFromJson(Arena *arena, struct json_value_s *json)
+typedef struct NodePool NodePool;
+struct NodePool {
+    Arena *arena;
+
+    Node *first;
+};
+
+Node *NodeNew(NodePool *pool)
+{
+    Node *result;
+    SLLPop(pool->first, result);
+    
+    if (!result) {
+        for (int i = 0; i < 64; ++i) {
+            Node *node = ArenaPush(pool->arena, sizeof(Node));
+            SLLPush(pool->first, node);
+        }
+        SLLPop(pool->first, result);
+    }
+    *result = (Node) {0};
+
+    return result;
+}
+
+void NodeFree(NodePool *pool, Node *node)
+{
+    SLLPush(pool->first, node);
+}
+
+Node *NodesFromJson(NodePool *pool, struct json_value_s *json)
 {
     Node *first = 0;
 
     struct json_object_s *root = json_value_as_object(json);
     // if not?
     for (struct json_object_element_s *elem = root->start; elem; elem = elem->next) {
-        Node *node = ArenaPush(arena, sizeof(Node));
+        Node *node = NodeNew(pool);
         SLLPush(first, node);
-        node->name = StringC(arena, elem->name->string);
+        node->name = StringC(pool->arena, elem->name->string);
 
         struct json_array_s *tag = json_value_as_array(elem->value);
         // if not?
         for (struct json_array_element_s *member = tag->start; member; member = member->next) {
-            Node *path = ArenaPush(arena, sizeof(Node));
+            Node *path = NodeNew(pool);
             SLLPush(node->child, path);
             struct json_string_s *str = json_value_as_string(member->value);
             // if not?
-            path->name = StringC(arena, str->string);
+            path->name = StringC(pool->arena, str->string);
         }
     }
 
