@@ -1,13 +1,4 @@
-#include <stddef.h>
-
-#define StringVArg(s) s.length, s.str
-#define StringLit(s) (String) { (s), sizeof(s)-1 }
-
-typedef struct String String;
-struct String {
-    char *str;
-    size_t length;
-};
+#include "string.h"
 
 String StringC(Arena *arena, const char *str)
 {
