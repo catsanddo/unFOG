@@ -37,3 +37,14 @@ void TagFile(NodePool *pool, Node **first, String tag, String file)
 
     SLLPush(iter->child, file_node);
 }
+
+Node *QueryTag(Node *first, String tag)
+{
+    for (Each(Node, tag_node, first)) {
+        if (strcmp(tag.str, tag_node->name.str) == 0) {
+            return tag_node;
+        }
+    }
+
+    return NULL;
+}
