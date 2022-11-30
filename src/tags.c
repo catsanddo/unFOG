@@ -48,3 +48,21 @@ Node *QueryTag(Node *first, String tag)
 
     return NULL;
 }
+
+Node *QueryFile(NodePool *pool, Node *first, String file)
+{
+    Node *result = 0;
+    for (Each(Node, tag_node, first)) {
+        for (Each(Node, file_node, tag_node->child)) {
+            if (strcmp(file.str, file_node->name.str) == 0) {
+                Node *tag = NodeNew(pool);
+                // NOTE: they are sharing the string name memory
+                tag->name = tag_node->name;
+                SLLPush(result, tag);
+                break;
+            }
+        }
+    }
+
+    return result;
+}

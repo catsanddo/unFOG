@@ -54,6 +54,11 @@ int main(int argc, char **argv)
     TagFile(&pool, &node, StringLit("code"), StringLit("TODO"));
     TagFile(&pool, &node, StringLit("f"), StringLit("TODO"));
 
+    Node *test = QueryTag(node, StringLit("code"));
+    for (Each(Node, n, test->child)) {
+        printf("%.*s\n", StringVArg(n->name));
+    }
+
     {
         struct json_value_s *result = JsonFromNodes(json_arena, node);
         String dump;
